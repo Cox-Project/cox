@@ -1,10 +1,26 @@
 {
     "name": "cox",
-    "version": "0.0.0",
     "description": "cox",
+    "version": "0.0.0",
+    "keywords" : [
+        "cox",
+        "cd",
+        "change dir",
+        "dir",
+        "project",
+        "folder",
+        "directory",
+        "find",
+        "shell",
+        "command"
+    ],
     "main": "index.js",
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "test-watch" : "jest --watch",
+        "test-cov" : "jest --coverage --runInBand --forceExit --detectOpenHandles",
+        "lint" : "eslint lib --cache --ignore-path .eslintignore",
+        "precommit-msg" : "echo 'Pre-commit checks...' && exit 0"
     },
     "repository": {
         "type": "git",
@@ -27,5 +43,19 @@
         "jest": "^23.6.0",
         "nodemon": "^1.18.6",
         "pre-commit": "^1.2.2"
+    },
+    "engines" : {
+        "node" : ">=8.0"
+    },
+    "directories" : {
+        "example" : "example",
+        "lib" : "lib",
+        "test" : "test"
+    },
+    "jest" : {
+        "testMatch" : [ "**/test/**/*.spec.js" ],
+        "coverageReporters" : [ "text-summary", "text", "lcov" ],
+        "collectCoverageFrom" : [ "lib/**/*.js" ],
+        "testEnvironment" : "node"
     }
 }
