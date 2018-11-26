@@ -1,6 +1,6 @@
-const fs = require( 'fs' );
 const path = require( 'path' );
 const utils = require( '../lib/utils' );
+const mockfs = require( 'mock-fs' );
 
 const file = path.join( __dirname, 'utils.spec.js' );
 const nonfile = path.join( __dirname, +new Date + '' );
@@ -8,16 +8,6 @@ const nonfile = path.join( __dirname, +new Date + '' );
 function fname( ...args ) {
     return path.join( __dirname, ...args );
 }
-
-describe( 'utils.stat', () => {
-    it( 'should return a Promise object', () => {
-        return expect( utils.stat( file ) ).resolves.toBeInstanceOf( fs.Stats );
-    } );    
-
-    it( 'should return a rejected Promise object while trying to attach a nonexistent file', () => {
-        return expect( utils.stat( nonfile ) ).rejects.toThrow(); 
-    } );
-} );
 
 describe( 'utils.isFile', () => {
     it( 'should return ture with a file', () => {
@@ -90,5 +80,67 @@ describe( 'utils.execludes', () => {
         const patterns = [ '**/.*', '~**/.cox.json' ];
         expect( m( '/home/www/.cox', patterns ) ).toBe( true );
         expect( m( '/home/www/.cox.json', patterns ) ).toBe( false );
+    } );
+} );
+
+describe( 'utils.subdirs', () => {
+    beforeAll( () => {
+        mockfs( {
+            cox : {
+                '.git' : {},
+                build : {},
+                node_modules : {},
+                lib : {},
+                test : {},
+                'index.js' : 'module.exports = {}',
+                '.cox.json' : 'module.exports = {}'
+            }
+        } )
+    } ); 
+
+    it( 'should return all sub dirs', () => {
+        return expect( utils.subdirs( 'cox' ).then( x => x.sort() ) ).resolves.toEqual( [
+            '.git', 'build', 'node_modules', 'lib', 'test'
+        ].sort() ); 
+    } );
+
+    it( 'should ignore folders match the exclude patterns', () => {
+        return expect( utils.subdirs( 'cox', {
+            exclude : [
+                '**/.*',
+                '**/node_modules'
+            ]
+        } ).then( x => x.sort() ) ).resolves.toEqual( [
+            'build', 'lib', 'test'
+        ].sort() ); 
+    } );
+
+    it( 'should return full path', () => {
+        return expect( utils.subdirs( 'cox', {
+            fullPath : true,
+            exclude : [
+                '**/.*',
+                '**/node_modules'
+            ]
+        } ).then( x => x.sort() ) ).resolves.toEqual( [
+            'cox/build', 'cox/lib', 'cox/test'
+        ].sort() ); 
+    } );
+
+    it( 'should check the exclude patterna based on the base dir', () => {
+        return expect( utils.subdirs( 'cox', {
+            fullPath : true,
+            base : 'cox',
+            exclude : [
+                '.*',
+                'node_modules'
+            ]
+        } ).then( x => x.sort() ) ).resolves.toEqual( [
+            'cox/build', 'cox/lib', 'cox/test'
+        ].sort() ); 
+    } );
+
+    afterAll( () => {
+        mockfs.restore();
     } );
 } );

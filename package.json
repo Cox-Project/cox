@@ -2,7 +2,7 @@
     "name": "cox",
     "description": "cox",
     "version": "0.0.0",
-    "keywords" : [
+    "keywords": [
         "cox",
         "cd",
         "change dir",
@@ -17,10 +17,10 @@
     "main": "index.js",
     "scripts": {
         "test": "jest",
-        "test-watch" : "jest --watch",
-        "test-cov" : "jest --coverage --runInBand --forceExit --detectOpenHandles",
-        "lint" : "eslint lib --cache --ignore-path .eslintignore",
-        "precommit-msg" : "echo 'Pre-commit checks...' && exit 0"
+        "test-watch": "jest --watch",
+        "test-cov": "jest --coverage --runInBand --forceExit --detectOpenHandles",
+        "lint": "eslint lib --cache --ignore-path .eslintignore",
+        "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
     },
     "repository": {
         "type": "git",
@@ -41,21 +41,30 @@
     "devDependencies": {
         "eslint": "^5.9.0",
         "jest": "^23.6.0",
+        "mock-fs": "^4.7.0",
         "nodemon": "^1.18.6",
         "pre-commit": "^1.2.2"
     },
-    "engines" : {
-        "node" : ">=8.0"
+    "engines": {
+        "node": ">=8.0"
     },
-    "directories" : {
-        "example" : "example",
-        "lib" : "lib",
-        "test" : "test"
+    "directories": {
+        "example": "example",
+        "lib": "lib",
+        "test": "test"
     },
-    "jest" : {
-        "testMatch" : [ "**/test/**/*.spec.js" ],
-        "coverageReporters" : [ "text-summary", "text", "lcov" ],
-        "collectCoverageFrom" : [ "lib/**/*.js" ],
-        "testEnvironment" : "node"
+    "jest": {
+        "testMatch": [
+            "**/test/**/*.spec.js"
+        ],
+        "coverageReporters": [
+            "text-summary",
+            "text",
+            "lcov"
+        ],
+        "collectCoverageFrom": [
+            "lib/**/*.js"
+        ],
+        "testEnvironment": "node"
     }
 }
