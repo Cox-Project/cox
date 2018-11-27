@@ -140,7 +140,67 @@ describe( 'utils.subdirs', () => {
         ].sort() ); 
     } );
 
-    afterAll( () => {
-        mockfs.restore();
+    afterAll( mockfs.restore );
+} );
+
+describe( 'utils.scan', () => {
+    describe( 'mock fs', () => {
+        beforeAll( () => {
+            mockfs( {
+                project : {
+                    cox : {
+                        '.git' : {},
+                        build : {},
+                        node_modules : {},
+                        lib : {},
+                        test : {},
+                    }
+                }
+            } )
+        } ); 
+
+        it( 'should travese all sub directories deeply', () => {
+            return expect( utils.scan( 'project' ).then( x => x.sort() ) ).resolves.toEqual( [
+                'project/cox',
+                'project/cox/.git',
+                'project/cox/build',
+                'project/cox/node_modules',
+                'project/cox/lib',
+                'project/cox/test'
+            ].sort() );
+        } );
+
+        it( 'should call the callback function', async () => {
+            let counter = 0;
+            const list = [];
+            const res = await utils.scan( 'project', x => {
+                counter++; 
+                list.push( x );
+            } ).then( x => x.sort() );
+
+            expect( counter ).toEqual( 6 );
+
+            expect( res ).toEqual( list.sort() );
+            
+            return expect( res ).toEqual( [
+                'project/cox',
+                'project/cox/.git',
+                'project/cox/build',
+                'project/cox/node_modules',
+                'project/cox/lib',
+                'project/cox/test'
+            ].sort() );
+        } );
+        afterAll( mockfs.restore );
+    } );
+
+    it( 'should use the cloest .cox.json file', () => {
+        const d = path.join( __dirname, 'sources/utils/scan' );
+
+        return expect( utils.scan( d ).then( x => x.sort() ) ).resolves.toEqual( [
+            path.join( d, 'cox' ),
+            path.join( d, 'cox/node_modules' ),
+            path.join( d, 'ynn' )
+        ].sort() );
     } );
 } );

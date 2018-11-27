@@ -35,6 +35,7 @@
     "dependencies": {
         "@lvchengbin/is": "0.0.24",
         "chokidar": "^2.0.4",
+        "fs-extra": "^7.0.1",
         "minimatch": "^3.0.4",
         "ynn": "0.0.14"
     },
