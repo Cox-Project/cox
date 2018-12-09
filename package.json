@@ -15,6 +15,10 @@
         "command"
     ],
     "main": "index.js",
+    "bin" : {
+        "co" : "bin/co.sh",
+        "cox" : "bin/cox.sh"
+    },
     "scripts": {
         "test": "jest",
         "test-watch": "jest --watch",

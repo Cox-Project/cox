@@ -1,0 +1,10 @@
+# root directories
+root
+    ~
+    ~/../NextSeason
+
+ignore
+    node_modules
+    logs
+    *.log
+    .*

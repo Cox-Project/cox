@@ -11,3 +11,15 @@
     ]
 }
 ```
+
+```
+root
+    ~
+    ~/../NextSeason
+
+ignore
+    node_modules
+    logs
+    *.log
+    .*
+```
