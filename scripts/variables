@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+_COX_VERSION="0.0.0"
+_COX_HOME="$HOME"
+_COX_RC_FILE=".coxrc"
+_COX_DIR="$_COX_HOME/.cox"

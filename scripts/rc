@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+CDIR=$(dirname "$0")
+
+source "$CDIR/variables"
+
+local D="$1"
+local F=0
+
+while getopts ":f:" option
+do
+    case "$option" in
+        f )
+            F=1
+            ;;
+        \? )
+            ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+
+while true; do
+    if [ -f "$D/$_COX_RC_FILE" ]; then
+        echo "$D/$_COX_RC_FILE"
+        exit
+    fi
+
+    if [ "$D" = "/" ]; then
+        break
+    fi
+    D=$(dirname "$D")
+done
+
+if [ $F -eq 0 ]; then
+    if [ -f "$_COX_HOME/$_COX_RC_FILE" ]; then
+        echo "$_COX_HOME/$_COX_RC_FILE"
+        exit
+    fi
+    echo "$_COX_HOME/$_COX_RC_FILE not exists."
+    exit 1
+fi
+
+echo "Cannot find $_COX_RC_FILE file for the direcotry"
+exit 1

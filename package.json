@@ -15,14 +15,13 @@
         "command"
     ],
     "main": "index.js",
-    "bin" : {
-        "co" : "bin/co.sh",
-        "cox" : "bin/cox.sh"
+    "bin": {
+        "co": "bin/co.sh",
+        "cox": "bin/cox.sh"
     },
     "scripts": {
-        "test": "bats-core/bin/bats test/coecho.bats",
-        "test-watch": "jest --watch",
-        "test-cov": "jest --coverage --runInBand --forceExit --detectOpenHandles",
+        "test": "bats test",
+        "test-watch": "nodemon -I --exec bats test/_corc.bats",
         "lint": "eslint lib --cache --ignore-path .eslintignore",
         "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
     },
@@ -37,7 +36,10 @@
     },
     "homepage": "https://github.com/Cox-Project/cox#readme",
     "dependencies": {},
-    "devDependencies": {},
+    "devDependencies": {
+        "bats": "^1.1.0",
+        "nodemon": "^1.18.8"
+    },
     "engines": {
         "node": ">=8.0"
     },
