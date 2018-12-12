@@ -20,7 +20,7 @@
         "cox" : "bin/cox.sh"
     },
     "scripts": {
-        "test": "jest",
+        "test": "bats-core/bin/bats test/coecho.bats",
         "test-watch": "jest --watch",
         "test-cov": "jest --coverage --runInBand --forceExit --detectOpenHandles",
         "lint": "eslint lib --cache --ignore-path .eslintignore",
@@ -36,20 +36,8 @@
         "url": "https://github.com/Cox-Project/cox/issues"
     },
     "homepage": "https://github.com/Cox-Project/cox#readme",
-    "dependencies": {
-        "@lvchengbin/is": "0.0.24",
-        "chokidar": "^2.0.4",
-        "fs-extra": "^7.0.1",
-        "minimatch": "^3.0.4",
-        "ynn": "0.0.14"
-    },
-    "devDependencies": {
-        "eslint": "^5.9.0",
-        "jest": "^23.6.0",
-        "mock-fs": "^4.7.0",
-        "nodemon": "^1.18.6",
-        "pre-commit": "^1.2.2"
-    },
+    "dependencies": {},
+    "devDependencies": {},
     "engines": {
         "node": ">=8.0"
     },
