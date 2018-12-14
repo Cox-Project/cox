@@ -21,7 +21,7 @@
     },
     "scripts": {
         "test": "bats test",
-        "test-watch": "nodemon -I --exec bats test/_corc.bats",
+        "test-watch": "nodemon --watch test --watch scripts -I --exec bats test",
         "lint": "eslint lib --cache --ignore-path .eslintignore",
         "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
     },

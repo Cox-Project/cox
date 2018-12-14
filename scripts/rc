@@ -2,10 +2,9 @@
 
 CDIR=$(dirname "$0")
 
-source "$CDIR/variables"
+source "$CDIR/vars"
 
-local D="$1"
-local F=0
+F=0
 
 while getopts ":f:" option
 do
@@ -19,6 +18,13 @@ do
 done
 
 shift $(($OPTIND - 1))
+
+D="$1"
+
+if [ $# -eq 0 ]; then
+    echo "usage: rc [-f] start_path"
+    exit 1
+fi
 
 while true; do
     if [ -f "$D/$_COX_RC_FILE" ]; then

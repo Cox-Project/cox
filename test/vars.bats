@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-source "scripts/_covars"
+source "scripts/vars"
 
 @test "should have defined _COX_VERSION" {
     [ -n "$_COX_VERSION" ]
