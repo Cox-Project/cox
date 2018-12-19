@@ -62,8 +62,7 @@ function version() {
     printf 'coecho 0.0.0'
 }
 
-while getopts ":f:b:s:hv" option
-do
+while getopts ":f:b:s:hv" option; do
     case "$option" in
         f )
             FGC=$OPTARG
@@ -108,8 +107,6 @@ else
     esac
 fi
 
-if [ -z "$STRING" ]; then
-    exit
-fi
+if [ -z "$STRING" ]; then exit; fi
 
 echo "$STRING" | sed -e "s|\($SUBSTR\)|"$(wrap \\1 "$FGC" "$BGC")"|g"

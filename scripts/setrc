@@ -1,0 +1,196 @@
+#!/usr/bin/env bash
+
+# Usage:
+# setrc [-a] [-r] key value
+# 
+# setrc [-a] key
+# setrc [-a] key value
+# setrc -r key
+# setrc -r key value
+
+if [ $# -t 1 ]; then
+    echo "Usage: setrc [-a] [-r] key [value]"
+    exit 1
+fi
+
+set -f
+
+CWD=$(dirname "$0")
+
+ACTION=ADD
+FORKEY=0
+
+while getopts ":s:a:r:" option; do
+    case "$option" in
+        a )
+            ACTION="ADD"
+            ;;
+        r )
+            ACTION="REMOVE"
+            ;;
+        s )
+            ACTION="SET"
+            ;;
+        \? )
+            "Unexcepted option -$option"
+            exit 1
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+if [ "$#" -lt 1 ]; then
+    echo "Usage: [-a] [-r] [-s] key [value]"
+    exit 1
+fi
+
+K="$1"
+V=
+NV=
+
+if [ "$#" -eq 1 ]; then
+    case "$ACTION" in
+        ADD )
+            ACTION="ADD_KEY"
+            ;;
+        REMOVE )
+            ACTION="REMOVE_KEY"
+            ;;
+        SET )
+            ACTION="ADD_KEY"
+            ;;
+        * )
+            ;;
+    esac
+elif [ "$#" -eq 2 ]; then
+    V="$2"
+    case "$ACTION" in
+        ADD )
+            ACTION="ADD_VALUE"
+            ;;
+        REMOVE )
+            ACTION="REMOVE_VALUE"
+            ;;
+        SET )
+            ACTION="SET_KEY"
+            ;;
+        * )
+            ;;
+    esac
+elif [ "$#" -eq 3 ]; then
+    NV="$3"
+    case "$ACTION" in
+        ADD )
+            echo "Usage: setrc [-a] key"
+            echo "       setrc [-a] key value"
+            exit 1
+            ;;
+        REMOVE )
+            echo "Usage: setrc -r key"
+            echo "       setrc -r key value"
+            exit 1
+            ;;
+        SET )
+            ACTION="SET_VALUE"
+            ;;
+        * )
+            ;;
+    esac
+fi
+
+INPUT="$(</dev/stdin)"
+
+if [ ! $(echo "$INPUT" | $CWD/getrc "$K") ]; then
+    case "$ACTION" in
+        # to remove a non-existence key
+        REMOVE_* )
+           ;;
+        SET_* )
+            INPUT+="\n$K"
+            # to add the value directly if the key doesn't exit
+            if [ "$ACTION" = SET_VALUE ]; then
+                INPUT+="\n    $NV"
+            fi
+            ;;
+        ADD_* )
+            INPUT+="\n$K"
+            if [ "$ACTION" = ADD_VALUE ]; then
+                INPUT+="\n    $V"
+            fi
+            ;;
+    esac
+    echo "$INPUT"
+    exit
+fi
+
+TAB=$(printf "\t")
+HAS_VALUE=0
+MATCH=0
+OUTPUT=()
+
+while IFS='
+' read -r line; do
+    # comment line
+    if [[ "$line" =~ ^[[:blank:]]# ]]; then
+        RESULT+=("$line")
+    fi
+
+    # blank line
+    if [[ "$line" =~ ^[[:blank:]]*$ ]]; then
+        RESULT+=("$line")
+    fi
+
+    line="${line%%* }"
+    line="${line%%*$TAB}"
+
+    if [ "$line" = "$K" ]; then
+        MATCH=1
+        if [ "$ACTION" = SET_KEY ]; then
+            OUTPUT+=("$V")
+            continue
+        fi
+        if [ "$ACTION" = "REMOVE_KEY" ]; then continue; fi
+        OUTPUT+=("$line")
+        continue
+    fi
+
+    if [[ "$line" =~ ^[[:blank:]] ]]; then
+        if [ $MATCH -eq 1 -a $HAS_VALUE -eq 0 -a "$ACTION" = "ADD_VALUE" ]; then
+            OUTPUT+=("$line") 
+        fi
+        MATCH=0
+    fi
+
+    if [ $MATCH -eq 0 ]; then
+        OUTPUT+=("$line")
+        continue
+    fi
+
+    line="${line%%* }"
+    line="${line%%*$TAB}"
+
+    case "$ACTION" in
+        # remove all values for the key
+        REMOVE_KEY )
+            continue
+            ;;
+        REMOVE_VALUE )
+            if [ "$line" = "$V" ]; then continue; fi
+            ;;
+        SET_VALUE )
+            if [ "$line" = "$V" ]; then
+                OUTPUT+=("$NV")
+                continue
+            fi
+            ;;
+        ADD_VALUE )
+            if [ "$line" = "$V" ]; then
+                HAS_VALUE=1
+                continue
+            fi
+            ;;
+        * )
+            ;;
+    esac
+done <<< "$(echo $INPUT)"

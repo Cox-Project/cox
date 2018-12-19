@@ -1,1 +1,47 @@
 #!/usr/bin/env bash
+
+if [ $# -lt 1 ]; then
+    echo "Usage: getrc rc_file key"
+    exit 1
+fi
+
+set -f
+START=0
+TAB=$(printf "\t")
+
+# get content from standard input, and separat it with the new line character.
+while IFS='
+' read -r line; do
+
+    # skip comment lines
+    if [[ "$line" =~ ^[[:blank:]]*# ]]; then continue; fi
+
+    # remove all spaces and tabs at the end of the string.
+    line="${line%%* }"
+    line="${line%%*$TAB}"
+
+    # skip the empty line
+    if [ -z "$line" ]; then continue; fi
+
+    # to find out the line matches the key
+    if [ "$line" = "$1" ]; then
+        START=1
+        continue
+    fi
+
+    if [ ! "$START" -eq 1 ]; then continue; fi
+
+    if [[ "$line" =~ ^[[:blank:]] ]]; then
+        # remove all spaces and tabs at the beginning of the string.
+        line="${line##* }"
+        line="${line##*$TAB}"
+        echo "$line"
+    else
+        break
+    fi
+done <<< "$(echo "$(</dev/stdin)")"
+
+if [ "$START" -eq 0 ]; then
+    echo "Error: the '$1' not exists"
+    exit 1
+fi

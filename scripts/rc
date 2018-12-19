@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-CDIR=$(dirname "$0")
+CWD=$(dirname "$0")
 
-source "$CDIR/vars"
+source "$CWD/vars"
 
 F=0
 
