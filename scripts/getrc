@@ -10,8 +10,7 @@ START=0
 TAB=$(printf "\t")
 
 # get content from standard input, and separat it with the new line character.
-while IFS='
-' read -r line; do
+while IFS=$'\n' read -r line; do
 
     # skip comment lines
     if [[ "$line" =~ ^[[:blank:]]*# ]]; then continue; fi

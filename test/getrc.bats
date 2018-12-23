@@ -18,13 +18,11 @@ ext
 "
 
 @test "should exit with 1 if the specified key not exists" {
-    skip
     run eval 'echo "$CONTENT" | scripts/getrc non-exitence'
     [ "$status" -eq 1 ]
 }
 
 @test "should exit with 1 if no argument specified" {
-    skip
     run scripts/getrc 
     [ "$status" -eq 1 ]
 }

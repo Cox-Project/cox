@@ -8,19 +8,12 @@
 # setrc -r key
 # setrc -r key value
 
-if [ $# -t 1 ]; then
-    echo "Usage: setrc [-a] [-r] key [value]"
-    exit 1
-fi
-
 set -f
-
 CWD=$(dirname "$0")
 
 ACTION=ADD
-FORKEY=0
 
-while getopts ":s:a:r:" option; do
+while getopts ":s :a :r" option; do
     case "$option" in
         a )
             ACTION="ADD"
@@ -79,6 +72,7 @@ elif [ "$#" -eq 2 ]; then
             ;;
     esac
 elif [ "$#" -eq 3 ]; then
+    V="$2"
     NV="$3"
     case "$ACTION" in
         ADD )
@@ -99,47 +93,55 @@ elif [ "$#" -eq 3 ]; then
     esac
 fi
 
+# replace all leading blank characters to for spaces.
+fecho() {
+    echo "$1" | sed -E 's/^[\t ]+/    /'
+}
+
 INPUT="$(</dev/stdin)"
 
-if [ ! $(echo "$INPUT" | $CWD/getrc "$K") ]; then
+echo "$INPUT" | $CWD/getrc "$K" > /dev/null 2>&1
+X=$?
+
+# if the key not exists in the input content
+if [ "$X" = 1 ]; then
     case "$ACTION" in
         # to remove a non-existence key
         REMOVE_* )
            ;;
+        # do nothing while setting new value to a non-existence key
         SET_* )
-            INPUT+="\n$K"
-            # to add the value directly if the key doesn't exit
-            if [ "$ACTION" = SET_VALUE ]; then
-                INPUT+="\n    $NV"
-            fi
             ;;
         ADD_* )
-            INPUT+="\n$K"
+            INPUT+=$'\n'"$K"
             if [ "$ACTION" = ADD_VALUE ]; then
-                INPUT+="\n    $V"
+                INPUT+=$'\n'"    $V"
             fi
             ;;
     esac
-    echo "$INPUT"
+    fecho "$INPUT"
+    exit
+fi
+
+# should not do anything while adding an existence key
+if [ "$ACTION" = ADD_KEY ]; then
+    fecho "$INPUT"
     exit
 fi
 
 TAB=$(printf "\t")
 HAS_VALUE=0
 MATCH=0
-OUTPUT=()
 
-while IFS='
-' read -r line; do
-    # comment line
-    if [[ "$line" =~ ^[[:blank:]]# ]]; then
-        RESULT+=("$line")
+while IFS=$'\n' read -r line; do
+    # skip comment lines
+    if [[ "$line" =~ ^[[:blank:]]*# ]]; then 
+        echo "$line"
+        continue
     fi
 
-    # blank line
-    if [[ "$line" =~ ^[[:blank:]]*$ ]]; then
-        RESULT+=("$line")
-    fi
+    # remove blank lines
+    if [[ "$line" =~ ^[[:blank:]]*$ ]]; then continue; fi
 
     line="${line%%* }"
     line="${line%%*$TAB}"
@@ -147,28 +149,29 @@ while IFS='
     if [ "$line" = "$K" ]; then
         MATCH=1
         if [ "$ACTION" = SET_KEY ]; then
-            OUTPUT+=("$V")
+            fecho "$V"
             continue
         fi
         if [ "$ACTION" = "REMOVE_KEY" ]; then continue; fi
-        OUTPUT+=("$line")
+        fecho "$line"
         continue
     fi
 
-    if [[ "$line" =~ ^[[:blank:]] ]]; then
+    if [[ ! "$line" =~ ^[[:blank:]] ]]; then
         if [ $MATCH -eq 1 -a $HAS_VALUE -eq 0 -a "$ACTION" = "ADD_VALUE" ]; then
-            OUTPUT+=("$line") 
+            HAS_VALUE=1
+            fecho " $V"
         fi
         MATCH=0
     fi
 
     if [ $MATCH -eq 0 ]; then
-        OUTPUT+=("$line")
+        fecho "$line"
         continue
     fi
 
-    line="${line%%* }"
-    line="${line%%*$TAB}"
+    line="${line##* }"
+    line="${line##*$TAB}"
 
     case "$ACTION" in
         # remove all values for the key
@@ -177,20 +180,28 @@ while IFS='
             ;;
         REMOVE_VALUE )
             if [ "$line" = "$V" ]; then continue; fi
+            fecho " $line"
             ;;
         SET_VALUE )
             if [ "$line" = "$V" ]; then
-                OUTPUT+=("$NV")
+                fecho " $NV"
                 continue
             fi
+            fecho " $line"
             ;;
         ADD_VALUE )
             if [ "$line" = "$V" ]; then
                 HAS_VALUE=1
                 continue
             fi
+            fecho " $line"
             ;;
         * )
+            fecho " $line"
             ;;
     esac
-done <<< "$(echo $INPUT)"
+done <<< "$(echo "$INPUT")"
+
+if [ "$ACTION" = ADD_VALUE -a $HAS_VALUE -eq 0 ]; then
+    fecho " $V"
+fi

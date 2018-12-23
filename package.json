@@ -21,7 +21,7 @@
     },
     "scripts": {
         "test": "bats test",
-        "tw": "nodemon -I --exec bats test/getrc.bats",
+        "tw": "nodemon -I --exec bats test/setrc.bats",
         "xtw" : "nodemon --watch test --watch scripts -I --exec 'bats test/' --ext bats --verbose",
         "lint": "eslint lib --cache --ignore-path .eslintignore",
         "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
